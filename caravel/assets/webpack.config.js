@@ -11,7 +11,9 @@ var config = {
     welcome: APP_DIR + '/javascripts/welcome.js',
     sql: APP_DIR + '/javascripts/sql.js',
     standalone: APP_DIR + '/javascripts/standalone.js',
-    common: APP_DIR + '/javascripts/common.js'
+    common: APP_DIR + '/javascripts/common.js',
+    carapal: APP_DIR + '/javascripts/carapal.jsx',
+    standalone: APP_DIR + '/javascripts/standalone.js'
   },
   output: {
     path: BUILD_DIR,
@@ -28,6 +30,10 @@ var config = {
         test: /\.jsx?/,
         include: APP_DIR,
         exclude: APP_DIR + '/node_modules',
+        query: {
+          presets: ['es2015'],
+        },
+        //plugins: ['transform-runtime'],
         loader: 'babel'
       },
     /* for react-map-gl overlays */
