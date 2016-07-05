@@ -21,11 +21,18 @@
     overflow: auto;
     width: 100%;
 }
-.SqlEditor .btn {
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+.SqlEditor .header {
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
-.Workspace .btn {
+.Workspace .btn-sm {
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    margin-top: 2px;
+    padding: 4px;
+}
+.Workspace hr {
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .SqlEditor .clock {
     background-color: orange;
@@ -36,8 +43,45 @@
     height: 25px;
 }
 
-.p-b-10 {
-    padding-bottom: 10px;
+.p-t-10 {
+    padding-top: 10px;
+}
+.pane-west {
+    height: 100%;
+    overflow: auto;
+}
+table td .label {
+    display: inline-block;
+    font-size: 12px;
+}
+table td i {
+    display: inline-block;
+    margin-top: 5px;
+    margin-right: 5px;
+}
+
+.ws-el .ws-el-controls { display: none; }
+.ws-el:hover .ws-el-controls { display: block; }
+.ws-el {
+    border-radius: 4px;
+    padding: 1px 6px;
+    border: 1px solid transparent;
+}
+.ws-el:hover { border: 1px solid #DDD; }
+
+.handle {
+    cursor: move;
+}
+.window {
+    //border-radius: 10px;
+    //background: white;
+    //padding: 15px;
+    z-index: 1000;
+    position: absolute;
+    width: 300px;
+    opacity: 0.85;
+    border: 1px solid #AAA;
+    box-shadow: rgba(0, 0, 0, 0.8) 5px 5px 25px
 }
 
 .list-group-item {
@@ -48,7 +92,7 @@
     padding: 1px 5px;
 }
 
-.SqlEditor table {
+.App table {
     margin: 0px;
 }
 
@@ -70,7 +114,7 @@
 }
 
 .Resizer.horizontal {
-    height: 11px;
+    height: 10px;
     margin: -5px 0;
     border-top: 5px solid rgba(255, 255, 255, 0);
     border-bottom: 5px solid rgba(255, 255, 255, 0);
@@ -85,7 +129,7 @@
 }
 
 .Resizer.vertical {
-    width: 11px;
+    width: 9px;
     margin: 0 -5px;
     border-left: 5px solid rgba(255, 255, 255, 0);
     border-right: 5px solid rgba(255, 255, 255, 0);

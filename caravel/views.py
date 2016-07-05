@@ -415,10 +415,15 @@ appbuilder.add_view(
     category_icon='fa-database',)
 
 
+class DatabaseAsync(DatabaseView):
+    list_columns = ['id', 'database_name', 'table_names', 'all_table_names']
+
+appbuilder.add_view_no_menu(DatabaseAsync)
+
 class TableModelView(CaravelModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.SqlaTable)
     list_columns = [
-        'table_link', 'database', 'sql_link', 'is_featured',
+        'table_link', 'database.database_name', 'sql_link', 'is_featured',
         'changed_by_', 'changed_on_']
     order_columns = [
         'table_link', 'database', 'sql_link', 'is_featured', 'changed_on_']
@@ -451,6 +456,7 @@ class TableModelView(CaravelModelView, DeleteMixin):  # noqa
         'default_endpoint': _("Default Endpoint"),
         'offset': _("Offset"),
         'cache_timeout': _("Cache Timeout"),
+        'database.database_name': _('Database'),
     }
 
     def post_add(self, table):
@@ -479,6 +485,11 @@ appbuilder.add_view(
 
 appbuilder.add_separator("Sources")
 
+
+class TableAsync(TableModelView):  # noqa
+    list_columns = TableModelView.list_columns + ['table_name']
+
+appbuilder.add_view_no_menu(TableAsync)
 
 class DruidClusterModelView(CaravelModelView, DeleteMixin):  # noqa
     datamodel = SQLAInterface(models.DruidCluster)
@@ -1172,20 +1183,16 @@ class Caravel(BaseCaravelView):
     @expose("/table/<database_id>/<table_name>/")
     @log_this
     def table(self, database_id, table_name):
-        mydb = db.session.query(
-            models.Database).filter_by(id=database_id).first()
-        cols = mydb.get_columns(table_name)
-        df = pd.DataFrame([(c['name'], c['type']) for c in cols])
-        df.columns = ['col', 'type']
-        tbl_cls = (
-            "dataframe table table-striped table-bordered "
-            "table-condensed sql_results").split(' ')
-        return self.render_template(
-            "caravel/ajah.html",
-            content=df.to_html(
-                index=False,
-                na_rep='',
-                classes=tbl_cls))
+        mydb = db.session.query(models.Database).filter_by(id=database_id).first()
+        cols = []
+        tbl = {
+            'columns': cols,
+            'name': table_name,
+        }
+        for col in mydb.get_columns(table_name):
+            col['type'] = str(col['type'])
+            cols.append(col)
+        return Response(json.dumps(tbl), mimetype="application/json")
 
     @has_access
     @expose("/select_star/<database_id>/<table_name>/")
@@ -1286,10 +1293,10 @@ class Caravel(BaseCaravelView):
         return self.render_template('caravel/welcome.html', utils=utils)
 
     @has_access
-    @expose("/carapal")
-    def carapal(self):
+    @expose("/sqlanvil")
+    def sqlanvil(self):
         """SQL Editor"""
-        return self.render_template('caravel/carapal.html')
+        return self.render_template('caravel/sqlanvil.html')
 
 appbuilder.add_view_no_menu(Caravel)
 
@@ -1321,7 +1328,7 @@ appbuilder.add_view(
 
 appbuilder.add_link(
     "SQL",
-    href='/caravel/carapal',
+    href='/caravel/sqlanvil',
     icon="fa-table")
 
 

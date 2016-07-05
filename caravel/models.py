@@ -310,6 +310,11 @@ class Dashboard(Model, AuditMixinNullable):
         else:
             return {}
 
+    @property
+    def sqla_metadata(self):
+        metadata = MetaData(bind=self.get_sqla_engine())
+        return metadata.reflect()
+
     def dashboard_link(self):
         return '<a href="{obj.url}">{obj.dashboard_title}</a>'.format(obj=self)
 
@@ -390,6 +395,11 @@ class Database(Model, AuditMixinNullable):
 
     def safe_sqlalchemy_uri(self):
         return self.sqlalchemy_uri
+
+    @property
+    def all_table_names(self):
+        eng = self.get_sqla_engine()
+        return sorted(eng.table_names())
 
     def grains(self):
         """Defines time granularity database-specific expressions.

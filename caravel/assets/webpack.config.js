@@ -12,7 +12,7 @@ var config = {
     sql: APP_DIR + '/javascripts/sql.js',
     standalone: APP_DIR + '/javascripts/standalone.js',
     common: APP_DIR + '/javascripts/common.js',
-    carapal: APP_DIR + '/javascripts/carapal.jsx',
+    sqlanvil: APP_DIR + '/javascripts/SqlAnvil/index.jsx',
     standalone: APP_DIR + '/javascripts/standalone.js'
   },
   output: {
