@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react'
 import { Alert, Button, ButtonGroup } from 'react-bootstrap'
 import Select from 'react-select'
-import Link from './Link.js'
+import Link from './Link'
 import TableOverlay from './TableOverlay'
 
+// CSS
+import 'react-select/dist/react-select.css';
 
 const WorkspaceElement = React.createClass({
   render: function () {

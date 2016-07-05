@@ -12,14 +12,14 @@ var config = {
     sql: APP_DIR + '/javascripts/sql.js',
     standalone: APP_DIR + '/javascripts/standalone.js',
     common: APP_DIR + '/javascripts/common.js',
-    sqlanvil: APP_DIR + '/javascripts/SqlAnvil/index.jsx',
-    standalone: APP_DIR + '/javascripts/standalone.js'
+    sqlanvil: APP_DIR + '/javascripts/SqlAnvil/index.jsx'
   },
   output: {
     path: BUILD_DIR,
     filename: '[name].entry.jsx'
   },
   resolve: {
+    extensions: ['', '.js', '.jsx'],
     alias: {
       webworkify: 'webworkify-webpack'
     }
@@ -31,7 +31,7 @@ var config = {
         include: APP_DIR,
         exclude: APP_DIR + '/node_modules',
         query: {
-          presets: ['es2015'],
+          presets: ['es2015']
         },
         //plugins: ['transform-runtime'],
         loader: 'babel'
