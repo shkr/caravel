@@ -16,6 +16,13 @@
 .SqlEditor .panel-heading {
     padding: 5px;
 }
+.window.panel-heading {
+    padding: 1px 5px;
+}
+.loading {
+    width: 50px;
+    margin-top: 15px;
+}
 .pane-cell {
     padding: 10px;
     overflow: auto;
@@ -33,6 +40,10 @@
 .Workspace hr {
     margin-top: 10px;
     margin-bottom: 10px;
+}
+div.Workspace {
+    height: 100%;
+    margin: 0px;
 }
 .SqlEditor .clock {
     background-color: orange;
@@ -73,14 +84,12 @@ table td i {
     cursor: move;
 }
 .window {
-    //border-radius: 10px;
-    //background: white;
-    //padding: 15px;
     z-index: 1000;
     position: absolute;
     width: 300px;
     opacity: 0.85;
     border: 1px solid #AAA;
+    max-height: 600px;
     box-shadow: rgba(0, 0, 0, 0.8) 5px 5px 25px
 }
 
@@ -88,7 +97,7 @@ table td i {
     padding: 5px 10px;
 }
 
-.SqlEditor .table-condensed > tbody > tr > td {
+.table-condensed > tbody > tr > td {
     padding: 1px 5px;
 }
 

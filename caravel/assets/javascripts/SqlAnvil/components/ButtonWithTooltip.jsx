@@ -1,8 +1,9 @@
 import React, { PropTypes } from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 
 
-const Link = React.createClass({
+const ButtonWithTooltip = React.createClass({
   render() {
     let tooltip = (
       <Tooltip id="tooltip">
@@ -11,15 +12,14 @@ const Link = React.createClass({
     );
     return (
       <OverlayTrigger overlay={tooltip} delayShow={300} delayHide={150}>
-        <a
-          href={this.props.href}
+        <Button
           onClick={this.props.onClick}
           className={this.props.className}>
             {this.props.children}
-        </a>
+        </Button>
       </OverlayTrigger>
     );
   }
 });
 
-export default Link
+export default ButtonWithTooltip

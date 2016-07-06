@@ -3,30 +3,14 @@ import { Alert, Button, ButtonGroup } from 'react-bootstrap'
 import Select from 'react-select'
 import Link from './Link'
 import TableOverlay from './TableOverlay'
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as Actions from '../actions';
+import TableWorkspaceElement from './TableWorkspaceElement'
+import shortid from 'shortid'
 
 // CSS
 import 'react-select/dist/react-select.css';
-
-const WorkspaceElement = React.createClass({
-  render: function () {
-    return (
-      <div className="ws-el">
-        <a href="#">{this.props.value}</a>
-        <ButtonGroup className="ws-el-controls pull-right">
-          <Button bsSize="small">
-            <Link className="fa fa-info-circle" tooltip="Show table structure in popup"/>
-          </Button>
-          <Button bsSize="small">
-            <Link className="fa fa-play" tooltip="Run query in a new tab"/>
-          </Button>
-          <Button bsSize="small">
-            <Link className="fa fa-trash" tooltip="Remove from workspace"/>
-          </Button>
-        </ButtonGroup>
-      </div>
-    )
-  }
-});
 
 
 const Workspace = React.createClass({
@@ -36,7 +20,6 @@ const Workspace = React.createClass({
       tableName: null,
       tableOptions: [],
       tableLoading: false,
-      tables: [],
     };
   },
   getDatabaseOptions: function(input, callback) {
@@ -87,11 +70,7 @@ const Workspace = React.createClass({
     var url = `/caravel/table/${this.state.selectedDatabase.id}/${tableName}`;
     $.get(url, function (data) {
       var options = [];
-      data['showPopup'] = true;
-      var cols = data.columns;
-      var tables = that.state.tables;
-      tables.push(data);
-      that.setState({ tables: tables });
+      that.props.actions.addTable(shortid.generate(), that.state.selectedDatabase.id, data.name, data.columns, true);
       that.render();
     });
     this.render();
@@ -101,19 +80,24 @@ const Workspace = React.createClass({
       <Alert bsStyle="info">
         To add a table to your workspace, pick one from the dropdown above.
       </Alert>);
-    if (this.state.tables.length > 0) {
-      tableElems = this.state.tables.map(function (table) {
-        return <WorkspaceElement key={table.name} value={table.name}/>;
+    if (this.props.tables.length > 0) {
+      tableElems = this.props.tables.map(function (table) {
+        return <TableWorkspaceElement key={table.name} table={table}/>;
       });
     }
 
     var tableOverlayElems = [];
     var i = 0;
-    this.state.tables.forEach(function (table) {
-      tableOverlayElems.push(
-        <TableOverlay key={table.name} closeCallback={function () {table.showPopup = false;}} visible={table.showPopup} data={table} defaultPosition={{ x: i*100, y: i*50 }}/>
-      );
-      i++;
+    this.props.tables.forEach(function (table) {
+      if (table.showPopup) {
+        tableOverlayElems.push(
+          <TableOverlay
+            key={table.name}
+            table={table}
+            defaultPosition={{ x: i*100, y: i*50 }}/>
+        );
+        i++;
+      }
     });
 
     return (
@@ -153,17 +137,13 @@ const Workspace = React.createClass({
             <hr/>
 
             <h6>Queries</h6>
-            <div className="queries">
-              <WorkspaceElement value="super query shocking results"/>
-              <WorkspaceElement value="bookings by market"/>
-              <WorkspaceElement value="query with an extremely long title that never end really"/>
-            </div>
-            <hr/>
-
-            <h6>Slices</h6>
-            <div className="queries">
-              <WorkspaceElement value="is it nice to have slices in a workspace?"/>
-              <WorkspaceElement value="bookings by markets"/>
+            <div>
+              <div className="ws-el">
+                <a href="#">Bookings by market YoY</a>
+              </div>
+              <div className="ws-el">
+                <a href="#">A wonderful query</a>
+              </div>
             </div>
             <hr/>
 
@@ -174,5 +154,15 @@ const Workspace = React.createClass({
   }
 });
 
+function mapStateToProps(state) {
+  return {
+    tables: state.tables
+  };
+}
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(Actions, dispatch)
+  };
+}
 
-export default Workspace
+export default connect(mapStateToProps, mapDispatchToProps)(Workspace)

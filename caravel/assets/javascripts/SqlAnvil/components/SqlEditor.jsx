@@ -6,6 +6,10 @@ import 'brace/mode/sql';
 import 'brace/theme/chrome';
 
 import { ResultSet } from './Mocks'
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as Actions from '../actions';
+import moment from 'moment'
 
 const SqlEditor = React.createClass({
   getInitialState: function() {
@@ -13,7 +17,7 @@ const SqlEditor = React.createClass({
       collapsed: false,
       startQueryDttm: null,
       tables: [],
-      sql: "SELECT *\nFROM \nWHERE ",
+      sql: this.props.queryEditor.sql,
     };
   },
   toggleCollapse: function () {
@@ -21,12 +25,16 @@ const SqlEditor = React.createClass({
     this.render();
   },
   stopwatch: function () {
-    this.setState({ clockStr: new Date() - this.startQueryDttm });
+    var duration = moment().valueOf() - this.state.startQueryDttm.valueOf();
+    console.log(duration);
+    duration = moment.utc(duration);
+
+    this.setState({ clockStr: duration.format('HH:mm:ss') });
     this.render();
   },
   startQuery: function () {
-    this.setState({ startQueryDttm: new Date() });
-    this.timer = setInterval(this.stopwatch, 100);
+    this.setState({ startQueryDttm: moment() });
+    this.timer = setInterval(this.stopwatch, 500);
     this.render();
   },
   textChange: function (text) {
@@ -34,6 +42,7 @@ const SqlEditor = React.createClass({
   },
   render: function () {
     var body = (<div/>);
+    var results = this.state.startQueryDttm ? <img className="loading" src="/static/assets/images/loading.gif"/> : <ResultSet/>;
     if (!this.state.collapsed) {
       body = (
         <div>
@@ -41,14 +50,14 @@ const SqlEditor = React.createClass({
             mode="sql"
             name={this.props.name}
             theme="chrome"
-            minLines={3}
+            minLines={10}
             maxLines={30}
             onChange={this.textChange}
             height="200px"
             width="100%"
             editorProps={{$blockScrolling: true}}
             value={this.state.sql}/>
-          <ResultSet/>
+          {results}
         </div>
       );
     }
@@ -59,9 +68,7 @@ const SqlEditor = React.createClass({
     );
     if (this.state.startQueryDttm) {
       runButton = (
-        <Button className="clock">
-          {new Date() - this.state.startQueryDttm}
-        </Button>
+        <Button className="clock">{this.state.clockStr}</Button>
       );
     }
     var rightButtons = (
@@ -72,7 +79,12 @@ const SqlEditor = React.createClass({
           <a className={(this.state.collapsed) ? 'fa fa-angle-down' : 'fa fa-angle-up'}/>
         </Button>
         <Button bsSize="small"><a className="fa fa-cog"/></Button>
-        <Button bsSize="small"><a className="fa fa-close"/></Button>
+        <Button bsSize="small"><a className="fa fa-save"/></Button>
+        <Button bsSize="small">
+          <a
+            className="fa fa-close"
+            onClick={this.props.actions.removeQueryEditor.bind(this, this.props.queryEditor.id)}/>
+        </Button>
       </ButtonGroup>
     );
     return (
@@ -99,4 +111,10 @@ const SqlEditor = React.createClass({
   }
 });
 
-export default SqlEditor
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(Actions, dispatch)
+  };
+}
+
+export default connect(null, mapDispatchToProps)(SqlEditor)
