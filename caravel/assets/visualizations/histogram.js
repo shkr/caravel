@@ -1,7 +1,7 @@
 // JS
 const d3 = require('d3')
 const px = window.px || require('../javascripts/modules/caravel.js')
-
+import { category21 } from '../javascripts/modules/colors'
 // CSS
 require('./histogram.css')
 
@@ -74,7 +74,7 @@ function histogram(slice) {
             .attr('height', function(d) {
                 return y.range()[0] - y(d.y);
             })
-            .attr('fill', function(d) { return px.color.category21(d.length); })
+            .attr('fill', function(d) { return category21(d.length); })
             .order();
        
        // Find maximum length to position the ticks on top of the bar correctly 
