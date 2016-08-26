@@ -1219,6 +1219,7 @@ class HistogramViz(BaseViz):
     fieldsets = ({
         'label': None,
         'fields': (
+            'groupby',
             ('all_columns_x',),
             'row_limit',
         )
@@ -1230,6 +1231,9 @@ class HistogramViz(BaseViz):
     },)
 
     form_overrides = {
+        'groupby': {
+            'label': _('Group by'),
+        },
         'all_columns_x': {
             'label': _('Numeric Column'),
             'description': _("Select the numeric column to draw the histogram"),
@@ -1245,11 +1249,17 @@ class HistogramViz(BaseViz):
     def query_obj(self):
         """Returns the query object for this visualization"""
         d = super(HistogramViz, self).query_obj()
+        groupby_col  = list(set(self.form_data.get('groupby'))) or []
         d['row_limit'] = self.form_data.get('row_limit', int(config.get('ROW_LIMIT')))
         numeric_column = self.form_data.get('all_columns_x')
         if numeric_column is None:
             raise Exception("Must have one numeric column specified")
-        d['columns'] = [numeric_column]
+
+        # Add groupby columns as a column value so that they can be
+        # collected together
+        d['columns'] = [numeric_column] + d['groupby']
+        d['groupby'] = []
+
         return d
 
 
@@ -1261,7 +1271,7 @@ class HistogramViz(BaseViz):
         self.results = self.datasource.query(**query_obj)
         self.query = self.results.query
         df = self.results.df
-
+        print(df.head(10))
         if df is None or df.empty:
             raise Exception("No data, to build histogram")
 
@@ -1273,7 +1283,16 @@ class HistogramViz(BaseViz):
     def get_data(self):
         """Returns the chart data"""
         df = self.get_df()
-        chart_data = df[df.columns[0]].values.tolist()
+        groupby_col = [c for c in df.columns[1:]] if(len(df.columns) > 1) else []
+
+        if(len(groupby_col) is 0):
+            chart_data = df[df.columns[0]].tolist()
+        else:
+            chart_data = df\
+                .groupby(groupby_col)[df.columns[0]]\
+                .apply(lambda value: value.tolist()).to_dict()
+
+        print(chart_data)
         return chart_data
 
 
