@@ -34,9 +34,9 @@ function histogram(slice) {
     .orient('left')
     .ticks(numBins);
     
-    function mkHistogram(samples) {
+    function mkHistogram(svg, samples) {
         // Calculate bins for the data
-        const bins = d3.layout.histogram().bins(numBins)(data);
+        const bins = d3.layout.histogram().bins(numBins)(samples);
 
         // Set the x-values
         x.domain(bins.map((d) => d.x))
@@ -44,12 +44,6 @@ function histogram(slice) {
         // Set the y-values
         y.domain([0, d3.max(bins, (d) => d.y)])
             .range([height, 0]);
-
-        // Create the svg value with the bins
-        const svg = div.selectAll('svg')
-            .data([bins])
-            .enter()
-            .append('svg');
 
         // Make a rectangular background fill
         svg.append('rect')
@@ -64,83 +58,82 @@ function histogram(slice) {
 
         // Add the bars and the x axis
         gEnter.append('g').attr('class', 'bars');
-                    gEnter.append('g').attr('class', 'x axis');
+        gEnter.append('g').attr('class', 'x axis');
 
-                    // Add width and height to the svg
-                    svg.attr('width', slice.width())
-                    .attr('height', slice.height());
+        // Add width and height to the svg
+        svg.attr('width', slice.width())
+        .attr('height', slice.height()/2);
 
-                    // Create the bars in the svg
-                    const bar = svg.select('.bars').selectAll('.bar').data(bins);
-                    bar.enter().append('rect');
-                    bar.exit().remove();
-                    // Set the Height and Width for each bar
-                    bar.attr('width', x.rangeBand())
-                    .attr('x', (d) => x(d.x))
-                    .attr('y', (d) => y(d.y))
-                    .attr('height', (d) => y.range()[0] - y(d.y))
-                    .style('fill', (d) => category21(d.length))
-                    .order();
+        // Create the bars in the svg
+        const bar = svg.select('.bars').selectAll('.bar').data(bins);
+        bar.enter().append('rect');
+        bar.exit().remove();
+        // Set the Height and Width for each bar
+        bar.attr('width', x.rangeBand())
+        .attr('x', (d) => x(d.x))
+        .attr('y', (d) => y(d.y))
+        .attr('height', (d) => y.range()[0] - y(d.y))
+        .style('fill', (d) => category21(d.length))
+        .order();
 
-                    // Find maximum length to position the ticks on top of the bar correctly
-                    const maxLength = d3.max(bins, (d) => d.length);
-                    function textAboveBar(d) {
-                        return d.length / maxLength < 0.1;
-                    }
+        // Find maximum length to position the ticks on top of the bar correctly
+        const maxLength = d3.max(bins, (d) => d.length);
+        function textAboveBar(d) {
+            return d.length / maxLength < 0.1;
+        }
 
-                    // Add a bar text to each bar in the histogram
-                    svg.selectAll('.bartext')
-                        .data(bins)
-                        .enter()
-                        .append('text')
-                        .attr('dy', '.75em')
-                        .attr('y', function (d) {
-                            let padding = 0.0;
-                            if (textAboveBar(d)) {
-                                padding = 12.0;
-                            } else {
-                                padding = -8.0;
-                            }
-                            return y(d.y) - padding;
-                        })
-                    .attr('x', (d) => x(d.x) + (x.rangeBand() / 2))
-                        .attr('text-anchor', 'middle')
-                        .attr('font-weight', 'bold')
-                        .attr('font-size', '15px')
-                        .text((d) => formatNumber(d.y))
-                        .attr('fill', (d) => textAboveBar(d) ? 'black' : 'white')
-                        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        // Add a bar text to each bar in the histogram
+        svg.selectAll('.bartext')
+            .data(bins)
+            .enter()
+            .append('text')
+            .attr('dy', '.75em')
+            .attr('y', function (d) {
+                let padding = 0.0;
+                if (textAboveBar(d)) {
+                    padding = 12.0;
+                } else {
+                    padding = -8.0;
+                }
+                return y(d.y) - padding;
+            })
+        .attr('x', (d) => x(d.x) + (x.rangeBand() / 2))
+            .attr('text-anchor', 'middle')
+            .attr('font-weight', 'bold')
+            .attr('font-size', '15px')
+            .text((d) => formatNumber(d.y))
+            .attr('fill', (d) => textAboveBar(d) ? 'black' : 'white')
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-                                // Update the x-axis
-                                svg.append('g')
-                                .attr('class', 'axis')
-                                .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top) + ')')
-                                    .text('values')
-                                    .call(xAxis);
+            // Update the x-axis
+            svg.append('g')
+                .attr('class', 'axis')
+                .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top) + ')')
+                    .text('values')
+                    .call(xAxis);
 
-                                    // Update the Y Axis and add minor lines
-                                    svg.append('g')
-                                    .attr('class', 'axis')
-                                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-                                        .text('count')
-                                        .call(yAxis)
-                                        .selectAll('g')
-                                        .filter(function (d) { return d; })
-                                        .classed('minor', true);
+                        // Update the Y Axis and add minor lines
+                        svg.append('g')
+                        .attr('class', 'axis')
+                        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                            .text('count')
+                            .call(yAxis)
+                            .selectAll('g')
+                            .filter(function (d) { return d; })
+                            .classed('minor', true);
 
     }
     
     if(data instanceof Array) {
-      console.log("It is an array");
-      mkHistogram(data);
-    } else if(typeof(data)==Object) {
-        for(let [category, samples] of Dict.entries(data)) {
-            mkHistogram(samples);
-        }
-   } else {
-        console.log(typeof(data));
-        console.log(data instanceof Array);
-        console.log("I cannot understand the type of object");
+        // Create the svg value with the bins
+        const svg = div.append("svg")
+        mkHistogram(svg, data);
+    } else {
+        Object.keys(data).forEach(function (category) {
+            const svg = div.append("svg");
+            let samples = data[category];
+            mkHistogram(svg, samples);
+        })
     }
   };
 
